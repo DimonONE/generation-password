@@ -62,7 +62,7 @@ interface IProps {
     className?: string
     label: string
     lengthPasswords: Array<number>
-    onChange: React.Dispatch<SetStateAction<number>>
+    onChange: (lengthPassword: number) => void
 }
 
 

@@ -7,6 +7,9 @@ import {Box, Button} from "@material-ui/core";
 import {generatePassword} from "../../coomon/GeneratePassword";
 import Tooltip from "../atoms/Tooltip";
 
+import { observer } from "mobx-react-lite";
+import GeneratePassword from "../../store/GeneratePassword";
+
 const Container = Styled.div`
     position: relative;
     overflow: hidden;
@@ -35,46 +38,41 @@ const Container = Styled.div`
     }
 `
 
-const RandomGeneration: FC = (props) => {
-    const lengthPasswords = [4, 8, 16, 32]
+const RandomGeneration: FC = observer( (props) => {
     const [checked, setChecked] = React.useState(true);
-    const [lengthPass, setLength] = React.useState(0);
-    const [password, setPassword] = React.useState('');
-    const [copy, setsetCopy] = React.useState(false);
-
+    const [copy, setCopy] = React.useState(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setChecked(event.target.checked);
     };
 
     const replicate = () => {
-        navigator.clipboard.writeText(password)
-        setsetCopy(true)
+        navigator.clipboard.writeText(GeneratePassword.passwords)
+        setCopy(true)
     };
 
     const generate = () => {
-        const gen = generatePassword({characterAmount: lengthPass, includeNumbers: checked})
-        console.log('ssss', lengthPass )
-
-        setPassword(gen)
+        const gen = generatePassword({characterAmount: GeneratePassword.lengthPassword, includeNumbers: checked})
+        GeneratePassword.save(gen)
     }
 
     return (
         <Container>
             <Button onClick={generate} className='run' color='primary'>run</Button>
-            <SelectCustom label='Длинна пароля:' lengthPasswords={lengthPasswords} onChange={setLength} />
+            <SelectCustom label='Длинна пароля:' lengthPasswords={GeneratePassword.possiblePassLength} onChange={ (lgt: number) =>  GeneratePassword.saveLength(lgt)} />
             <CheckboxCustom checked={checked} handleChange={handleChange} label='Использовать цифры' />
+
             <Box className='m-top'>
-                <Label width='67%' color='inherit'>{password}</Label>
-                {password && <Tooltip label={copy ? 'Скопировано' : 'Копировать'}>
+                <Label width='67%' color='inherit'>{GeneratePassword.passwords}</Label>
+                {GeneratePassword.passwords && <Tooltip label={copy ? 'Скопировано' : 'Копировать'}>
                     <Button className='m-top' size='small' onClick={replicate}
-                            onBlur={() => setsetCopy(false)}
+                            onBlur={() => setCopy(false)}
                             color='primary'>Копировать
                     </Button>
                 </Tooltip>}
             </Box>
         </Container>
     );
-};
+});
 
 export default RandomGeneration;
